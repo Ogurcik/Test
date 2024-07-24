@@ -2,6 +2,7 @@
 local ScreenGui = Instance.new("ScreenGui")
 local WeaponFrame = Instance.new("Frame")
 local WeaponButton = Instance.new("TextButton")
+local CloseButton = Instance.new("TextButton")
 local UICorner = Instance.new("UICorner")
 
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -18,16 +19,27 @@ WeaponFrame.BorderSizePixel = 0
 -- Настройка кнопки выбора оружия
 WeaponButton.Parent = WeaponFrame
 WeaponButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
-WeaponButton.Position = UDim2.new(0.1, 0, 0.1, 0)
+WeaponButton.Position = UDim2.new(0.1, 0, 0.2, 0)
 WeaponButton.Size = UDim2.new(0.8, 0, 0, 50)
 WeaponButton.Text = "Get SuperGun"
 WeaponButton.TextColor3 = Color3.new(1, 1, 1)
 WeaponButton.Font = Enum.Font.SourceSans
 WeaponButton.TextSize = 24
 
--- Настройка углов кнопки
+-- Настройка кнопки закрытия меню
+CloseButton.Parent = WeaponFrame
+CloseButton.BackgroundColor3 = Color3.new(0.7, 0.1, 0.1)
+CloseButton.Position = UDim2.new(0.1, 0, 0.8, 0)
+CloseButton.Size = UDim2.new(0.8, 0, 0, 50)
+CloseButton.Text = "Close Menu"
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.Font = Enum.Font.SourceSans
+CloseButton.TextSize = 24
+
+-- Настройка углов кнопок
 UICorner.CornerRadius = UDim.new(0, 10)
 UICorner.Parent = WeaponButton
+UICorner:Clone().Parent = CloseButton
 
 -- Функция для создания оружия с бесконечными патронами и высоким уроном
 local function createPowerfulWeapon(name, damage)
@@ -35,7 +47,7 @@ local function createPowerfulWeapon(name, damage)
     tool.Name = name
     tool.RequiresHandle = true
     tool.CanBeDropped = true
-    
+
     local handle = Instance.new("Part")
     handle.Name = "Handle"
     handle.Size = Vector3.new(1, 5, 1)
@@ -48,41 +60,43 @@ local function createPowerfulWeapon(name, damage)
     local weaponScript = Instance.new("Script")
     weaponScript.Source = [[
         local tool = script.Parent
-        local damage = tool:GetAttribute("Damage") or 100
+        local damage = tool:GetAttribute("Damage") or 1000000000
         local shooting = false
-        
+
         tool.Activated:Connect(function()
             if not shooting then
                 shooting = true
+                
+                -- Определение зоны поражения
                 local player = game.Players.LocalPlayer
                 local character = player.Character
                 local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                
+
                 if humanoidRootPart then
-                    -- Определение зоны поражения
-                    local ray = Ray.new(humanoidRootPart.Position, humanoidRootPart.CFrame.LookVector * 100)
+                    local direction = humanoidRootPart.CFrame.LookVector * 100
+                    local ray = Ray.new(humanoidRootPart.Position, direction)
                     local part, position = workspace:FindPartOnRay(ray, character)
                     
-                    if part then
-                        local targetHumanoids = {}
-                        for _, obj in ipairs(workspace:FindPartsInRegion3(workspace.CurrentCamera:WorldToViewportPoint(humanoidRootPart.Position), Vector3.new(100, 100, 100), nil)) do
-                            local humanoid = obj.Parent:FindFirstChildOfClass("Humanoid")
-                            if humanoid and humanoid ~= character:FindFirstChildOfClass("Humanoid") then
-                                table.insert(targetHumanoids, humanoid)
-                            end
-                        end
-                        for _, targetHumanoid in ipairs(targetHumanoids) do
-                            targetHumanoid:TakeDamage(damage)
+                    -- Наносим урон всем сущностям в зоне попадания
+                    local hitHumanoids = {}
+                    for _, obj in ipairs(workspace:FindPartsInRegion3(workspace.CurrentCamera:WorldToViewportPoint(humanoidRootPart.Position), Vector3.new(100, 100, 100), nil)) do
+                        local humanoid = obj.Parent:FindFirstChildOfClass("Humanoid")
+                        if humanoid and humanoid ~= character:FindFirstChildOfClass("Humanoid") then
+                            table.insert(hitHumanoids, humanoid)
                         end
                     end
+                    for _, hitHumanoid in ipairs(hitHumanoids) do
+                        hitHumanoid:TakeDamage(damage)
+                    end
                 end
+
                 shooting = false
             end
         end)
     ]]
     weaponScript.Parent = tool
     tool:SetAttribute("Damage", damage)
-    
+
     return tool
 end
 
@@ -90,7 +104,7 @@ end
 local function giveWeapon(weaponName, damage)
     local player = game.Players.LocalPlayer
     local backpack = player:FindFirstChild("Backpack")
-    
+
     if backpack then
         local weapon = createPowerfulWeapon(weaponName, damage)
         weapon.Parent = backpack
@@ -99,5 +113,10 @@ end
 
 -- Обработчик нажатия кнопки для получения оружия
 WeaponButton.MouseButton1Click:Connect(function()
-    giveWeapon("SuperGun", 1000)  -- Выдает оружие с высоким уроном
+    giveWeapon("SuperGun", 1000000000)  -- Выдает оружие с уронным значением 1 миллиард
+end)
+
+-- Обработчик нажатия кнопки для закрытия меню
+CloseButton.MouseButton1Click:Connect(function()
+    WeaponFrame.Visible = false
 end)
