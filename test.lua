@@ -1,195 +1,134 @@
-local function API_Check()
-    if Drawing == nil then
-        return "No"
-    else
-        return "Yes"
-    end
-end
-
-local Find_Required = API_Check()
-
-if Find_Required == "No" then
-    game:GetService("StarterGui"):SetCore("SendNotification",{
-        Title = "Exunys Developer";
-        Text = "ESP script could not be loaded because your exploit is unsupported.";
-        Duration = math.huge;
-        Button1 = "OK"
-    })
-
-    return
-end
-
+local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Camera = workspace.CurrentCamera
+local localPlayer = Players.LocalPlayer
+local Storage = Instance.new("Folder", CoreGui)
+Storage.Name = "Highlight_Storage"
 
-local Typing = false
+local function lerp(a, b, t)
+    return a + (b - a) * t
+end
 
-_G.SendNotifications = true   -- If set to true then the script would notify you frequently on any changes applied and when loaded / errored. (If a game can detect this, it is recommended to set it to false)
-_G.DefaultSettings = false   -- If set to true then the ESP script would run with default settings regardless of any changes you made.
+local function createColorGradient(health)
+    local green = Color3.fromRGB(0, 255, 0)
+    local red = Color3.fromRGB(255, 0, 0)
+    local fraction = health / 100
+    return Color3.new(
+        lerp(red.R, green.R, fraction),
+        lerp(red.G, green.G, fraction),
+        lerp(red.B, green.B, fraction)
+    )
+end
 
-_G.TeamCheck = false   -- If set to true then the script would create ESP only for the enemy team members.
+local function updateHighlightColor(highlight, health)
+    highlight.FillColor = createColorGradient(health)
+end
 
-_G.ESPVisible = true   -- If set to true then the ESP will be visible and vice versa.
-_G.TextColor = Color3.fromRGB(255, 80, 10)   -- The color that the boxes would appear as.
-_G.TextSize = 14   -- The size of the text.
-_G.Center = true   -- If set to true then the script would be located at the center of the label.
-_G.Outline = true   -- If set to true then the text would have an outline.
-_G.OutlineColor = Color3.fromRGB(0, 0, 0)   -- The outline color of the text.
-_G.TextTransparency = 0.7   -- The transparency of the text.
-_G.TextFont = Drawing.Fonts.UI   -- The font of the text. (UI, System, Plex, Monospace) 
+local function createHighlight(plr)
+    local highlight = Instance.new("Highlight")
+    highlight.Name = plr.Name
+    highlight.DepthMode = "AlwaysOnTop"
+    highlight.FillTransparency = 0.5
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.OutlineTransparency = 0
+    highlight.Parent = Storage
 
-_G.DisableKey = Enum.KeyCode.Q   -- The key that disables / enables the ESP.
-
-local function CreateESP()
-    for _, v in next, Players:GetPlayers() do
-        if v.Name ~= Players.LocalPlayer.Name then
-            local ESP = Drawing.new("Text")
-
-            RunService.RenderStepped:Connect(function()
-                if workspace:FindFirstChild(v.Name) ~= nil and workspace[v.Name]:FindFirstChild("HumanoidRootPart") ~= nil then
-                    local Vector, OnScreen = Camera:WorldToViewportPoint(workspace[v.Name]:WaitForChild("Head", math.huge).Position)
-
-                    ESP.Size = _G.TextSize
-                    ESP.Center = _G.Center
-                    ESP.Outline = _G.Outline
-                    ESP.OutlineColor = _G.OutlineColor
-                    ESP.Color = _G.TextColor
-                    ESP.Transparency = _G.TextTransparency
-                    ESP.Font = _G.TextFont
-
-                    if OnScreen == true then
-                        local Part1 = workspace:WaitForChild(v.Name, math.huge):WaitForChild("HumanoidRootPart", math.huge).Position
-                        local Part2 = workspace:WaitForChild(Players.LocalPlayer.Name, math.huge):WaitForChild("HumanoidRootPart", math.huge).Position or 0
-                        local Dist = (Part1 - Part2).Magnitude
-                        ESP.Position = Vector2.new(Vector.X, Vector.Y - 25)
-                        ESP.Text = ("("..tostring(math.floor(tonumber(Dist)))..") "..v.Name.." ["..workspace[v.Name].Humanoid.Health.."]")
-                        if _G.TeamCheck == true then 
-                            if Players.LocalPlayer.Team ~= v.Team then
-                                ESP.Visible = _G.ESPVisible
-                            else
-                                ESP.Visible = false
-                            end
-                        else
-                            ESP.Visible = _G.ESPVisible
-                        end
-                    else
-                        ESP.Visible = false
-                    end
-                else
-                    ESP.Visible = false
-                end
-            end)
-
-            Players.PlayerRemoving:Connect(function()
-                ESP.Visible = false
-            end)
-        end
+    local function onCharacterAdded(character)
+        highlight.Adornee = character
+        local humanoid = character:WaitForChild("Humanoid")
+        RunService.RenderStepped:Connect(function()
+            updateHighlightColor(highlight, humanoid.Health)
+        end)
     end
 
-    Players.PlayerAdded:Connect(function(Player)
-        Player.CharacterAdded:Connect(function(v)
-            if v.Name ~= Players.LocalPlayer.Name then 
-                local ESP = Drawing.new("Text")
-    
-                RunService.RenderStepped:Connect(function()
-                    if workspace:FindFirstChild(v.Name) ~= nil and workspace[v.Name]:FindFirstChild("HumanoidRootPart") ~= nil then
-                        local Vector, OnScreen = Camera:WorldToViewportPoint(workspace[v.Name]:WaitForChild("Head", math.huge).Position)
-    
-                        ESP.Size = _G.TextSize
-                        ESP.Center = _G.Center
-                        ESP.Outline = _G.Outline
-                        ESP.OutlineColor = _G.OutlineColor
-                        ESP.Color = _G.TextColor
-                        ESP.Transparency = _G.TextTransparency
-    
-                        if OnScreen == true then
-                            local Part1 = workspace:WaitForChild(v.Name, math.huge):WaitForChild("HumanoidRootPart", math.huge).Position
-                        local Part2 = workspace:WaitForChild(Players.LocalPlayer.Name, math.huge):WaitForChild("HumanoidRootPart", math.huge).Position or 0
-                            local Dist = (Part1 - Part2).Magnitude
-                            ESP.Position = Vector2.new(Vector.X, Vector.Y - 25)
-                            ESP.Text = ("("..tostring(math.floor(tonumber(Dist)))..") "..v.Name.." ["..workspace[v.Name].Humanoid.Health.."]")
-                            if _G.TeamCheck == true then 
-                                if Players.LocalPlayer.Team ~= Player.Team then
-                                    ESP.Visible = _G.ESPVisible
-                                else
-                                    ESP.Visible = false
-                                end
-                            else
-                                ESP.Visible = _G.ESPVisible
-                            end
-                        else
-                            ESP.Visible = false
-                        end
-                    else
-                        ESP.Visible = false
-                    end
-                end)
-    
-                Players.PlayerRemoving:Connect(function()
-                    ESP.Visible = false
-                end)
-            end
-        end)
+    plr.CharacterAdded:Connect(onCharacterAdded)
+    if plr.Character then
+        onCharacterAdded(plr.Character)
+    end
+
+    Players.PlayerRemoving:Connect(function()
+        if Storage:FindFirstChild(plr.Name) then
+            Storage[plr.Name]:Destroy()
+        end
     end)
 end
 
-if _G.DefaultSettings == true then
-    _G.TeamCheck = false
-    _G.ESPVisible = true
-    _G.TextColor = Color3.fromRGB(40, 90, 255)
-    _G.TextSize = 14
-    _G.Center = true
-    _G.Outline = false
-    _G.OutlineColor = Color3.fromRGB(0, 0, 0)
-    _G.DisableKey = Enum.KeyCode.Q
-    _G.TextTransparency = 0.75
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= localPlayer then
+        createHighlight(player)
+    end
 end
 
-UserInputService.TextBoxFocused:Connect(function()
-    Typing = true
-end)
+Players.PlayerAdded:Connect(createHighlight)
 
-UserInputService.TextBoxFocusReleased:Connect(function()
-    Typing = false
-end)
+-- ESP для ника и здоровья
+local function createESP(player)
+    if player == localPlayer then return end
 
-UserInputService.InputBegan:Connect(function(Input)
-    if Input.KeyCode == _G.DisableKey and Typing == false then
-        _G.ESPVisible = not _G.ESPVisible
-        
-        if _G.SendNotifications == true then
-            game:GetService("StarterGui"):SetCore("SendNotification",{
-                Title = "Exunys Developer";
-                Text = "The ESP's visibility is now set to "..tostring(_G.ESPVisible)..".";
-                Duration = 5;
-            })
+    local function onCharacterAdded(character)
+        local head = character:WaitForChild("Head", 10)
+        if not head then return end
+
+        -- Удаление старых ESP элементов, если они есть
+        for _, child in pairs(head:GetChildren()) do
+            if child:IsA("BillboardGui") then
+                child:Destroy()
+            end
         end
-    end
-end)
 
-local Success, Errored = pcall(function()
-    CreateESP()
-end)
+        -- Создание надписей с именем и здоровьем
+        local billboard = Instance.new("BillboardGui", head)
+        billboard.Name = "ESP"
+        billboard.AlwaysOnTop = true
+        billboard.Size = UDim2.new(0, 100, 0, 50)
+        billboard.StudsOffset = Vector3.new(0, 3, 0)
 
-if Success and not Errored then
-    if _G.SendNotifications == true then
-        game:GetService("StarterGui"):SetCore("SendNotification",{
-            Title = "Exunys Developer";
-            Text = "ESP script has successfully loaded.";
-            Duration = 5;
-        })
+        local frame = Instance.new("Frame", billboard)
+        frame.Size = UDim2.new(1, 0, 1, 0)
+        frame.BackgroundTransparency = 1
+
+        local nameLabel = Instance.new("TextLabel", frame)
+        nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Text = player.Name
+        nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        nameLabel.TextStrokeTransparency = 0
+        nameLabel.Font = Enum.Font.SourceSansBold
+        nameLabel.TextScaled = true
+        nameLabel.TextSize = 14
+
+        local healthLabel = Instance.new("TextLabel", frame)
+        healthLabel.Size = UDim2.new(1, 0, 0.5, 0)
+        healthLabel.Position = UDim2.new(0, 0, 0.5, 0)
+        healthLabel.BackgroundTransparency = 1
+        healthLabel.TextStrokeTransparency = 0
+        healthLabel.Font = Enum.Font.SourceSansBold
+        healthLabel.TextScaled = true
+        healthLabel.TextSize = 14
+
+        local function updateESP()
+            if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                local health = humanoid.Health
+                healthLabel.Text = "HP: " .. math.floor(health)
+                healthLabel.TextColor3 = createColorGradient(health)
+            end
+        end
+
+        RunService.RenderStepped:Connect(updateESP)
+        updateESP()
     end
-elseif Errored and not Success then
-    if _G.SendNotifications == true then
-        game:GetService("StarterGui"):SetCore("SendNotification",{
-            Title = "Exunys Developer";
-            Text = "ESP script has errored while loading, please check the developer console! (F9)";
-            Duration = 5;
-        })
+
+    if player.Character then
+        onCharacterAdded(player.Character)
     end
-    TestService:Message("The ESP script has errored, please notify Exunys with the following information :")
-    warn(Errored)
-    print("!! IF THE ERROR IS A FALSE POSITIVE (says that a player cannot be found) THEN DO NOT BOTHER !!")
+    player.CharacterAdded:Connect(onCharacterAdded)
 end
+
+for _, player in pairs(Players:GetPlayers()) do
+    if player ~= localPlayer then
+        createESP(player)
+    end
+end
+
+Players.PlayerAdded:Connect(createESP)
