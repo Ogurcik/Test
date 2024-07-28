@@ -43,14 +43,14 @@ local function createESP(player)
         nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         nameLabel.TextStrokeTransparency = 0
         nameLabel.Font = Enum.Font.SourceSansBold
-        nameLabel.TextSize = 14 -- Начальный размер текста для никнейма
+        nameLabel.TextSize = 12 -- Начальный размер текста для никнейма
         nameLabel.TextScaled = true
         nameLabel.TextWrapped = true
 
         -- Уменьшение размера текста, если никнейм слишком длинный
         nameLabel:GetPropertyChangedSignal("TextBounds"):Connect(function()
             if nameLabel.TextBounds.X > nameLabel.AbsoluteSize.X then
-                nameLabel.TextSize = 14 * (nameLabel.AbsoluteSize.X / nameLabel.TextBounds.X)
+                nameLabel.TextSize = 12 * (nameLabel.AbsoluteSize.X / nameLabel.TextBounds.X)
             end
         end)
 
@@ -60,7 +60,7 @@ local function createESP(player)
         healthLabel.BackgroundTransparency = 1
         healthLabel.TextStrokeTransparency = 0
         healthLabel.Font = Enum.Font.SourceSansBold
-        healthLabel.TextSize = 14 -- Размер текста для здоровья
+        healthLabel.TextSize = 12 -- Размер текста для здоровья
 
         -- Локальная переменная для хранения предыдущего значения здоровья
         local lastHealth = -1
