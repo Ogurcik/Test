@@ -43,14 +43,14 @@ local function createESP(player)
         nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         nameLabel.TextStrokeTransparency = 0
         nameLabel.Font = Enum.Font.SourceSansBold
-        nameLabel.TextSize = 12 -- Начальный размер текста для никнейма
+        nameLabel.TextSize = 10 -- Начальный размер текста для никнейма
         nameLabel.TextScaled = true
         nameLabel.TextWrapped = true
 
         -- Уменьшение размера текста, если никнейм слишком длинный
         nameLabel:GetPropertyChangedSignal("TextBounds"):Connect(function()
             if nameLabel.TextBounds.X > nameLabel.AbsoluteSize.X then
-                nameLabel.TextSize = 12 * (nameLabel.AbsoluteSize.X / nameLabel.TextBounds.X)
+                nameLabel.TextSize = 10 * (nameLabel.AbsoluteSize.X / nameLabel.TextBounds.X)
             end
         end)
 
@@ -60,7 +60,7 @@ local function createESP(player)
         healthLabel.BackgroundTransparency = 1
         healthLabel.TextStrokeTransparency = 0
         healthLabel.Font = Enum.Font.SourceSansBold
-        healthLabel.TextSize = 12 -- Размер текста для здоровья
+        healthLabel.TextSize = 10 -- Размер текста для здоровья
 
         -- Локальная переменная для хранения предыдущего значения здоровья
         local lastHealth = -1
@@ -70,16 +70,28 @@ local function createESP(player)
                 local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
                 local health = humanoid.Health
 
-                -- Обновляем текст только при изменении здоровья
+                -- Обновляем текст и цвет подсветки только при изменении здоровья
                 if math.floor(health) ~= lastHealth then
                     healthLabel.Text = "HP: " .. math.floor(health)
-                    healthLabel.TextColor3 = createColorGradient(health)
+                    local color = createColorGradient(health)
+                    healthLabel.TextColor3 = color
+                    if character:FindFirstChild("Highlight") then
+                        character.Highlight.FillColor = color
+                    else
+                        local highlight = Instance.new("Highlight", character)
+                        highlight.Name = "Highlight"
+                        highlight.FillColor = color
+                        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        highlight.FillTransparency = 0.5
+                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        highlight.OutlineTransparency = 0
+                    end
                     lastHealth = math.floor(health)
                 end
             end
         end
 
-        -- Обновляем текст с частотой 10 раз в секунду
+        -- Обновляем текст и цвет с частотой 10 раз в секунду
         local updateConnection = RunService.RenderStepped:Connect(function(step)
             if step >= 0.1 then
                 updateESP()
