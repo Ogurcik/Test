@@ -1,67 +1,16 @@
-local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
 local localPlayer = Players.LocalPlayer
-local Storage = Instance.new("Folder", CoreGui)
-Storage.Name = "Highlight_Storage"
 
-local function lerp(a, b, t)
-    return a + (b - a) * t
-end
-
+-- Функция для создания плавного градиента цвета в зависимости от здоровья
 local function createColorGradient(health)
-    local green = Color3.fromRGB(0, 255, 0)
-    local red = Color3.fromRGB(255, 0, 0)
-    local fraction = health / 100
-    return Color3.new(
-        lerp(red.R, green.R, fraction),
-        lerp(red.G, green.G, fraction),
-        lerp(red.B, green.B, fraction)
-    )
+    local red = math.clamp(255 - (health * 2.55), 0, 255)
+    local green = math.clamp(health * 2.55, 0, 255)
+    return Color3.fromRGB(red, green, 0)
 end
 
-local function updateHighlightColor(highlight, health)
-    highlight.FillColor = createColorGradient(health)
-end
-
-local function createHighlight(plr)
-    local highlight = Instance.new("Highlight")
-    highlight.Name = plr.Name
-    highlight.DepthMode = "AlwaysOnTop"
-    highlight.FillTransparency = 0.5
-    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-    highlight.OutlineTransparency = 0
-    highlight.Parent = Storage
-
-    local function onCharacterAdded(character)
-        highlight.Adornee = character
-        local humanoid = character:WaitForChild("Humanoid")
-        RunService.RenderStepped:Connect(function()
-            updateHighlightColor(highlight, humanoid.Health)
-        end)
-    end
-
-    plr.CharacterAdded:Connect(onCharacterAdded)
-    if plr.Character then
-        onCharacterAdded(plr.Character)
-    end
-
-    Players.PlayerRemoving:Connect(function()
-        if Storage:FindFirstChild(plr.Name) then
-            Storage[plr.Name]:Destroy()
-        end
-    end)
-end
-
-for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= localPlayer then
-        createHighlight(player)
-    end
-end
-
-Players.PlayerAdded:Connect(createHighlight)
-
--- ESP для ника и здоровья
+-- Функция для создания ESP для игрока
 local function createESP(player)
     if player == localPlayer then return end
 
@@ -94,8 +43,16 @@ local function createESP(player)
         nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         nameLabel.TextStrokeTransparency = 0
         nameLabel.Font = Enum.Font.SourceSansBold
+        nameLabel.TextSize = 14 -- Начальный размер текста для никнейма
         nameLabel.TextScaled = true
-        nameLabel.TextSize = 14
+        nameLabel.TextWrapped = true
+
+        -- Уменьшение размера текста, если никнейм слишком длинный
+        nameLabel:GetPropertyChangedSignal("TextBounds"):Connect(function()
+            if nameLabel.TextBounds.X > nameLabel.AbsoluteSize.X then
+                nameLabel.TextSize = 14 * (nameLabel.AbsoluteSize.X / nameLabel.TextBounds.X)
+            end
+        end)
 
         local healthLabel = Instance.new("TextLabel", frame)
         healthLabel.Size = UDim2.new(1, 0, 0.5, 0)
@@ -103,19 +60,39 @@ local function createESP(player)
         healthLabel.BackgroundTransparency = 1
         healthLabel.TextStrokeTransparency = 0
         healthLabel.Font = Enum.Font.SourceSansBold
-        healthLabel.TextScaled = true
-        healthLabel.TextSize = 14
+        healthLabel.TextSize = 14 -- Размер текста для здоровья
+
+        -- Локальная переменная для хранения предыдущего значения здоровья
+        local lastHealth = -1
 
         local function updateESP()
             if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
                 local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
                 local health = humanoid.Health
-                healthLabel.Text = "HP: " .. math.floor(health)
-                healthLabel.TextColor3 = createColorGradient(health)
+
+                -- Обновляем текст только при изменении здоровья
+                if math.floor(health) ~= lastHealth then
+                    healthLabel.Text = "HP: " .. math.floor(health)
+                    healthLabel.TextColor3 = createColorGradient(health)
+                    lastHealth = math.floor(health)
+                end
             end
         end
 
-        RunService.RenderStepped:Connect(updateESP)
+        -- Обновляем текст с частотой 10 раз в секунду
+        local updateConnection = RunService.RenderStepped:Connect(function(step)
+            if step >= 0.1 then
+                updateESP()
+            end
+        end)
+
+        -- Убедитесь, что соединение отключено при удалении персонажа
+        player.CharacterRemoving:Connect(function()
+            if updateConnection then
+                updateConnection:Disconnect()
+            end
+        end)
+
         updateESP()
     end
 
