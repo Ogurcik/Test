@@ -1,236 +1,33 @@
-local function createUI()
-    local ScreenGui = Instance.new("ScreenGui")
-    local MainFrame = Instance.new("Frame")
-    local ToggleButton = Instance.new("TextButton")
-    local CloseButton = Instance.new("TextButton")
-    local FreezeButton = Instance.new("TextButton")
-    local SpeedLabel = Instance.new("TextLabel")
-    local SpeedInput = Instance.new("TextBox")
-    local LocalItemsButton = Instance.new("TextButton")
-    local VersionLabel = Instance.new("TextLabel")
-    local ESPButton = Instance.new("TextButton")
-
-    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    ScreenGui.Name = "MainMenuGui"
-
-    MainFrame.Parent = ScreenGui
-    MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
-    MainFrame.Size = UDim2.new(0, 600, 0, 400)
-    MainFrame.Visible = false
-    MainFrame.BorderSizePixel = 0
-
-    ToggleButton.Parent = ScreenGui
-    ToggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    ToggleButton.Position = UDim2.new(0, 0, 0, 0)
-    ToggleButton.Size = UDim2.new(0, 120, 0, 60)
-    ToggleButton.Text = "Menu"
-    ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ToggleButton.Font = Enum.Font.GothamBold
-    ToggleButton.TextSize = 20
-
-    CloseButton.Parent = MainFrame
-    CloseButton.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-    CloseButton.Position = UDim2.new(0.5, -100, 1, -50)
-    CloseButton.Size = UDim2.new(0, 100, 0, 40)
-    CloseButton.Text = "Close"
-    CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    CloseButton.Font = Enum.Font.GothamBold
-    CloseButton.TextSize = 20
-
-    FreezeButton.Parent = MainFrame
-    FreezeButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-    FreezeButton.Position = UDim2.new(0.05, 0, 0.1, 0)
-    FreezeButton.Size = UDim2.new(0, 120, 0, 50)
-    FreezeButton.Text = "Freeze"
-    FreezeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    FreezeButton.Font = Enum.Font.GothamBold
-    FreezeButton.TextSize = 20
-
-    SpeedLabel.Parent = MainFrame
-    SpeedLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    SpeedLabel.Position = UDim2.new(0.25, 0, 0.4, 0)
-    SpeedLabel.Size = UDim2.new(0, 120, 0, 30)
-    SpeedLabel.Text = "Speed:"
-    SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SpeedLabel.Font = Enum.Font.GothamBold
-    SpeedLabel.TextSize = 20
-
-    SpeedInput.Parent = MainFrame
-    SpeedInput.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    SpeedInput.Position = UDim2.new(0.45, 0, 0.4, 0)
-    SpeedInput.Size = UDim2.new(0, 120, 0, 30)
-    SpeedInput.Text = "16"
-    SpeedInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SpeedInput.Font = Enum.Font.GothamBold
-    SpeedInput.TextSize = 20
-
-    LocalItemsButton.Parent = MainFrame
-    LocalItemsButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-    LocalItemsButton.Position = UDim2.new(0.35, 0, 0.1, 0)
-    LocalItemsButton.Size = UDim2.new(0, 120, 0, 50)
-    LocalItemsButton.Text = "Local Items"
-    LocalItemsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    LocalItemsButton.Font = Enum.Font.GothamBold
-    LocalItemsButton.TextSize = 20
-
-    VersionLabel.Parent = MainFrame
-    VersionLabel.BackgroundTransparency = 1
-    VersionLabel.Position = UDim2.new(1, -120, 1, -30)
-    VersionLabel.Size = UDim2.new(0, 100, 0, 20)
-    VersionLabel.Text = "Version 1.0"
-    VersionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    VersionLabel.Font = Enum.Font.GothamBold
-    VersionLabel.TextSize = 16
-    VersionLabel.BorderSizePixel = 1
-    VersionLabel.BorderColor3 = Color3.fromRGB(0, 255, 0)
-
-    ESPButton.Parent = MainFrame
-    ESPButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-    ESPButton.Position = UDim2.new(0.65, 0, 0.1, 0)
-    ESPButton.Size = UDim2.new(0, 120, 0, 50)
-    ESPButton.Text = "ESP"
-    ESPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ESPButton.Font = Enum.Font.GothamBold
-    ESPButton.TextSize = 20
-
-    return {
-        ScreenGui = ScreenGui,
-        MainFrame = MainFrame,
-        ToggleButton = ToggleButton,
-        CloseButton = CloseButton,
-        FreezeButton = FreezeButton,
-        SpeedLabel = SpeedLabel,
-        SpeedInput = SpeedInput,
-        LocalItemsButton = LocalItemsButton,
-        VersionLabel = VersionLabel,
-        ESPButton = ESPButton
-    }
-end
-local function setupElement(element)
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 5)
-    corner.Parent = element
-
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(0, 0, 0)
-    stroke.Thickness = 1
-    stroke.Parent = element
+-- Проверка, чтобы скрипт работал только на клиенте
+if not game:GetService("RunService"):IsClient() then
+    return
 end
 
-local function applyStyling(elements)
-    setupElement(elements.ToggleButton)
-    setupElement(elements.CloseButton)
-    setupElement(elements.FreezeButton)
-    setupElement(elements.SpeedInput)
-    setupElement(elements.LocalItemsButton)
-    setupElement(elements.ESPButton)
-end
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local camera = workspace.CurrentCamera
+local userInputService = game:GetService("UserInputService")
 
-local function updateSpeedFromInput(SpeedInput, SpeedLabel, currentSpeed)
-    local inputSpeed = tonumber(SpeedInput.Text)
-    if inputSpeed and inputSpeed > 0 then
-        SpeedLabel.Text = "Speed: " .. tostring(inputSpeed)
-        return inputSpeed
-    else
-        SpeedInput.Text = tostring(currentSpeed)
-        return currentSpeed
+-- Функция для создания draggable фрейма
+local function createDraggableFrame(parent, size, position, backgroundColor)
+    local frame = Instance.new("Frame")
+    frame.Size = size
+    frame.Position = position
+    frame.BackgroundColor3 = backgroundColor
+    frame.Parent = parent
+    
+    local dragging, dragInput, startPos, startPosRel = false, nil, nil, nil
+    
+    local function updateInput(input)
+        local delta = input.Position - startPos
+        parent.Position = UDim2.new(startPosRel.X.Scale, startPosRel.X.Offset + delta.X, startPosRel.Y.Scale, startPosRel.Y.Offset + delta.Y)
     end
-end
-
-local function setupFreezeButton(FreezeButton, SpeedLabel, SpeedInput)
-    local isFrozen = false
-    local currentSpeed = 16
-    local connection
-
-    local function toggleFreeze()
-        local player = game.Players.LocalPlayer
-        local character = player.Character
-        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-
-        if humanoid then
-            if not isFrozen then
-                character.HumanoidRootPart.Anchored = true
-                connection = game:GetService("RunService").RenderStepped:Connect(function()
-                    if isFrozen then
-                        local moveDirection = humanoid.MoveDirection
-                        local delta = moveDirection * currentSpeed / 60
-                        character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame + delta
-                    end
-                end)
-                isFrozen = true
-                FreezeButton.Text = "Unfreeze"
-                SpeedLabel.Visible = true
-                SpeedInput.Visible = true
-            else
-                character.HumanoidRootPart.Anchored = false
-                humanoid.WalkSpeed = 16
-                isFrozen = false
-                FreezeButton.Text = "Freeze"
-                if connection then connection:Disconnect() end
-                SpeedLabel.Visible = false
-                SpeedInput.Visible = false
-            end
-        end
-    end
-
-    FreezeButton.MouseButton1Click:Connect(function()
-        toggleFreeze()
-    end)
-
-    SpeedInput.FocusLost:Connect(function(enterPressed)
-        if enterPressed then
-            currentSpeed = updateSpeedFromInput(SpeedInput, SpeedLabel, currentSpeed)
-        end
-    end)
-end
-
-local function giveAllItems()
-    local player = game.Players.LocalPlayer
-    local backpack = player.Backpack
-    for _, asset in ipairs(game:GetDescendants()) do
-        if asset:IsA("Tool") and not backpack:FindFirstChild(asset.Name) then
-            asset:Clone().Parent = backpack
-        end
-    end
-end
-
-local function setupLocalItemsButton(LocalItemsButton)
-    LocalItemsButton.MouseButton1Click:Connect(giveAllItems)
-end
-
-local function setupToggleButtons(ToggleButton, CloseButton, MainFrame)
-    ToggleButton.MouseButton1Click:Connect(function()
-        MainFrame.Visible = not MainFrame.Visible
-    end)
-
-    CloseButton.MouseButton1Click:Connect(function()
-        MainFrame.Visible = false
-    end)
-end
-
-local function setupESPButton(ESPButton)
-    ESPButton.MouseButton1Click:Connect(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Ogurcik/esp-original/main/ESP%20script%20original.lua"))()
-    end)
-end
-local function makeDraggable(gui)
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
-
-    local function update(input)
-        local delta = input.Position - dragStart
-        gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-
-    gui.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
-            dragStart = input.Position
-            startPos = gui.Position
-
+            startPos = input.Position
+            startPosRel = frame.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
@@ -238,36 +35,156 @@ local function makeDraggable(gui)
             end)
         end
     end)
-
-    gui.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
         end
     end)
-
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
+    
+    userInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
-            update(input)
+            updateInput(input)
         end
     end)
+    
+    return frame
 end
 
-local function initializeUI()
-    -- Create UI elements
-    local elements = createUI()
+-- Создание главного фрейма с возможностью перетаскивания и закрытия
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "PlayerTrackerGui"
+screenGui.Parent = playerGui
 
-    -- Apply styling to elements
-    applyStyling(elements)
+local mainFrame = createDraggableFrame(screenGui, UDim2.new(0.3, 0, 0.5, 0), UDim2.new(0.35, 0, 0.25, 0), Color3.fromRGB(50, 50, 50))
 
-    -- Set up functionality
-    setupFreezeButton(elements.FreezeButton, elements.SpeedLabel, elements.SpeedInput)
-    setupLocalItemsButton(elements.LocalItemsButton)
-    setupToggleButtons(elements.ToggleButton, elements.CloseButton, elements.MainFrame)
-    setupESPButton(elements.ESPButton)
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
+titleLabel.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+titleLabel.Text = "Выберите игрока для слежки"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Parent = mainFrame
 
-    -- Make MainFrame draggable
-    makeDraggable(elements.MainFrame)
+local playerListLayout = Instance.new("UIListLayout")
+playerListLayout.Parent = mainFrame
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+closeButton.Position = UDim2.new(0.9, 0, 0, 0)
+closeButton.Text = "X"
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Parent = mainFrame
+
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Создание фрейма для ползунка
+local sliderFrame = Instance.new("Frame")
+sliderFrame.Size = UDim2.new(1, 0, 0.2, 0)
+sliderFrame.Position = UDim2.new(0, 0, 0.7, 0)
+sliderFrame.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+sliderFrame.Parent = mainFrame
+
+local sliderTitle = Instance.new("TextLabel")
+sliderTitle.Size = UDim2.new(1, 0, 0.3, 0)
+sliderTitle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+sliderTitle.Text = "Расстояние камеры:"
+sliderTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+sliderTitle.Parent = sliderFrame
+
+local slider = Instance.new("Frame")
+slider.Size = UDim2.new(1, -20, 0.4, 0)
+slider.Position = UDim2.new(0, 10, 0.35, 0)
+slider.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+slider.Parent = sliderFrame
+
+local sliderButton = Instance.new("Frame")
+sliderButton.Size = UDim2.new(0, 10, 1, 0)
+sliderButton.Position = UDim2.new(0, 0, 0, 0)
+sliderButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+sliderButton.Parent = slider
+
+local sliderValue = Instance.new("TextLabel")
+sliderValue.Size = UDim2.new(1, 0, 0.3, 0)
+sliderValue.Position = UDim2.new(0, 0, 0.7, 0)
+sliderValue.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+sliderValue.Text = "20"
+sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
+sliderValue.Parent = sliderFrame
+
+-- Обновление списка игроков
+local function updatePlayerList()
+    -- Очистка предыдущего списка
+    for _, child in ipairs(mainFrame:GetChildren()) do
+        if child:IsA("TextButton") and child ~= titleLabel and child ~= closeButton then
+            child:Destroy()
+        end
+    end
+
+    -- Создание новых кнопок для каждого игрока
+    for _, p in ipairs(game.Players:GetPlayers()) do
+        if p ~= player then
+            local playerButton = Instance.new("TextButton")
+            playerButton.Size = UDim2.new(1, 0, 0.1, 0)
+            playerButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            playerButton.Text = p.Name
+            playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            playerButton.Parent = mainFrame
+
+            playerButton.MouseButton1Click:Connect(function()
+                -- Начать слежку за игроком
+                print("Слежу за игроком: " .. p.Name)
+                
+                -- Смена позиции камеры на выбранного игрока
+                camera.CameraSubject = p.Character and p.Character:FindFirstChild("Humanoid") or nil
+                camera.CameraType = Enum.CameraType.Scriptable
+
+                -- Функция для обновления камеры
+                local function updateCamera()
+                    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        local distance = tonumber(sliderValue.Text) or 20
+                        camera.CFrame = CFrame.new(p.Character.HumanoidRootPart.Position + Vector3.new(0, 5, distance), p.Character.HumanoidRootPart.Position)
+                    end
+                end
+
+                -- Обновление камеры каждый кадр
+                game:GetService("RunService").RenderStepped:Connect(updateCamera)
+            end)
+        end
+    end
 end
 
--- Initialize UI
-initializeUI()
+-- Обновление значения ползунка
+local function updateSlider(input)
+    local sliderSize = slider.AbsoluteSize.X
+    local newValue = math.clamp((input.Position.X.Offset - slider.AbsolutePosition.X) / sliderSize * 40 + 10, 10, 50)
+    sliderButton.Position = UDim2.new((newValue - 10) / 40 / sliderSize, 0, 0, 0)
+    sliderValue.Text = tostring(math.round(newValue))
+end
+
+sliderButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        updateSlider(input)
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                local inputConnection = input.InputChanged
+                inputConnection:Disconnect()
+            end
+        end)
+    end
+end)
+
+userInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and sliderButton.Position.X.Offset then
+        updateSlider(input)
+    end
+end)
+
+-- Обновление списка игроков при запуске
+updatePlayerList()
+
+-- Обновление списка при изменении игроков
+game.Players.PlayerAdded:Connect(updatePlayerList)
+game.Players.PlayerRemoved:Connect(updatePlayerList)
