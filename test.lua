@@ -6,7 +6,6 @@ end
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local camera = workspace.CurrentCamera
-local userInputService = game:GetService("UserInputService")
 
 -- Функция для создания draggable фрейма
 local function createDraggableFrame(parent, size, position, backgroundColor)
@@ -27,7 +26,7 @@ local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "PlayerTrackerGui"
 screenGui.Parent = playerGui
 
-local mainFrame = createDraggableFrame(screenGui, UDim2.new(0.3, 0, 0.6, 0), UDim2.new(0.35, 0, 0.2, 0), Color3.fromRGB(50, 50, 50))
+local mainFrame = createDraggableFrame(screenGui, UDim2.new(0.4, 0, 0.6, 0), UDim2.new(0.3, 0, 0.2, 0), Color3.fromRGB(50, 50, 50))
 mainFrame.Visible = false
 
 local titleLabel = Instance.new("TextLabel")
@@ -40,8 +39,16 @@ titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextScaled = true
 titleLabel.Parent = mainFrame
 
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 0.8, 0)
+scrollFrame.Position = UDim2.new(0, 0, 0.1, 0)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
+scrollFrame.ScrollBarThickness = 10
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.Parent = mainFrame
+
 local playerListLayout = Instance.new("UIListLayout")
-playerListLayout.Parent = mainFrame
+playerListLayout.Parent = scrollFrame
 
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0.1, 0, 0.1, 0)
@@ -78,37 +85,35 @@ backButton.MouseButton1Click:Connect(function()
     camera.CameraType = Enum.CameraType.Custom
 end)
 
-local function setCameraToFirstPerson(targetPlayer)
-    local humanoid = targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid")
-    if humanoid then
-        camera.CameraSubject = humanoid
-        camera.CameraType = Enum.CameraType.Custom
-        camera.CFrame = CFrame.new(humanoid.Head.Position)
-    end
-end
-
-local function setCameraToThirdPerson(targetPlayer)
-    local humanoid = targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid")
-    if humanoid then
-        camera.CameraSubject = humanoid
-        camera.CameraType = Enum.CameraType.Custom
-        camera.CFrame = CFrame.new(humanoid.Head.Position + Vector3.new(0, 5, -10), humanoid.Head.Position)
-    end
-end
-
 local function setCameraToFreeView(targetPlayer)
     local humanoid = targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid")
     if humanoid then
         camera.CameraSubject = nil
         camera.CameraType = Enum.CameraType.Scriptable
+
+        -- Функция для обновления камеры
+        local function updateCamera()
+            if targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local humanoidRootPart = targetPlayer.Character.HumanoidRootPart
+                camera.CFrame = CFrame.new(humanoidRootPart.Position + Vector3.new(0, 5, -10), humanoidRootPart.Position)
+            end
+        end
+
+        -- Обновление камеры каждый кадр
+        local renderConnection = game:GetService("RunService").RenderStepped:Connect(updateCamera)
+
+        -- Отключение обновления камеры при возврате к своему персонажу
+        backButton.MouseButton1Click:Connect(function()
+            renderConnection:Disconnect()
+        end)
     end
 end
 
 -- Обновление списка игроков
 local function updatePlayerList()
     -- Очистка предыдущего списка
-    for _, child in ipairs(mainFrame:GetChildren()) do
-        if child:IsA("TextButton") and child ~= titleLabel and child ~= backButton then
+    for _, child in ipairs(scrollFrame:GetChildren()) do
+        if child:IsA("TextButton") then
             child:Destroy()
         end
     end
@@ -124,57 +129,18 @@ local function updatePlayerList()
             playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
             playerButton.Font = Enum.Font.SourceSansBold
             playerButton.TextScaled = true
-            playerButton.Parent = mainFrame
-
-            local viewButton1 = Instance.new("TextButton")
-            viewButton1.Size = UDim2.new(1, 0, 0.1, 0)
-            viewButton1.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
-            viewButton1.BorderSizePixel = 0
-            viewButton1.Text = "1 лицо"
-            viewButton1.TextColor3 = Color3.fromRGB(255, 255, 255)
-            viewButton1.Font = Enum.Font.SourceSansBold
-            viewButton1.TextScaled = true
-            viewButton1.Parent = mainFrame
-
-            viewButton1.MouseButton1Click:Connect(function()
-                setCameraToFirstPerson(p)
-            end)
-
-            local viewButton2 = Instance.new("TextButton")
-            viewButton2.Size = UDim2.new(1, 0, 0.1, 0)
-            viewButton2.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
-            viewButton2.BorderSizePixel = 0
-            viewButton2.Text = "3 лицо"
-            viewButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
-            viewButton2.Font = Enum.Font.SourceSansBold
-            viewButton2.TextScaled = true
-            viewButton2.Parent = mainFrame
-
-            viewButton2.MouseButton1Click:Connect(function()
-                setCameraToThirdPerson(p)
-            end)
-
-            local freeViewButton = Instance.new("TextButton")
-            freeViewButton.Size = UDim2.new(1, 0, 0.1, 0)
-            freeViewButton.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
-            freeViewButton.BorderSizePixel = 0
-            freeViewButton.Text = "Свободный вид"
-            freeViewButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            freeViewButton.Font = Enum.Font.SourceSansBold
-            freeViewButton.TextScaled = true
-            freeViewButton.Parent = mainFrame
-
-            freeViewButton.MouseButton1Click:Connect(function()
-                setCameraToFreeView(p)
-            end)
+            playerButton.Parent = scrollFrame
 
             playerButton.MouseButton1Click:Connect(function()
                 -- Начать слежку за игроком
                 print("Слежу за игроком: " .. p.Name)
-                setCameraToThirdPerson(p)
+                setCameraToFreeView(p)
             end)
         end
     end
+
+    -- Обновление CanvasSize для прокрутки
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0.1 * #game.Players:GetPlayers(), 0)
 end
 
 -- Обновление списка игроков при запуске
