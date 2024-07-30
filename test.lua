@@ -14,40 +14,11 @@ local function createDraggableFrame(parent, size, position, backgroundColor)
     frame.Size = size
     frame.Position = position
     frame.BackgroundColor3 = backgroundColor
+    frame.BackgroundTransparency = 0.3
+    frame.BorderSizePixel = 0
     frame.Parent = parent
-    
-    local dragging, dragInput, startPos, startPosRel = false, nil, nil, nil
-    
-    local function updateInput(input)
-        local delta = input.Position - startPos
-        parent.Position = UDim2.new(startPosRel.X.Scale, startPosRel.X.Offset + delta.X, startPosRel.Y.Scale, startPosRel.Y.Offset + delta.Y)
-    end
-    
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            startPos = input.Position
-            startPosRel = frame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-    
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-    
-    userInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            updateInput(input)
-        end
-    end)
-    
+    frame.Active = true
+    frame.Draggable = true
     return frame
 end
 
@@ -56,69 +27,88 @@ local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "PlayerTrackerGui"
 screenGui.Parent = playerGui
 
-local mainFrame = createDraggableFrame(screenGui, UDim2.new(0.3, 0, 0.5, 0), UDim2.new(0.35, 0, 0.25, 0), Color3.fromRGB(50, 50, 50))
+local mainFrame = createDraggableFrame(screenGui, UDim2.new(0.3, 0, 0.6, 0), UDim2.new(0.35, 0, 0.2, 0), Color3.fromRGB(50, 50, 50))
+mainFrame.Visible = false
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
 titleLabel.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+titleLabel.BorderSizePixel = 0
 titleLabel.Text = "Выберите игрока для слежки"
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextScaled = true
 titleLabel.Parent = mainFrame
 
 local playerListLayout = Instance.new("UIListLayout")
 playerListLayout.Parent = mainFrame
 
-local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-closeButton.Position = UDim2.new(0.9, 0, 0, 0)
-closeButton.Text = "X"
-closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.Parent = mainFrame
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+toggleButton.Position = UDim2.new(0, 0, 0, 0)
+toggleButton.Text = ">"
+toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextScaled = true
+toggleButton.Parent = screenGui
 
-closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
+toggleButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+    if mainFrame.Visible then
+        toggleButton.Text = "<"
+    else
+        toggleButton.Text = ">"
+    end
 end)
 
--- Создание фрейма для ползунка
-local sliderFrame = Instance.new("Frame")
-sliderFrame.Size = UDim2.new(1, 0, 0.2, 0)
-sliderFrame.Position = UDim2.new(0, 0, 0.7, 0)
-sliderFrame.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-sliderFrame.Parent = mainFrame
+local backButton = Instance.new("TextButton")
+backButton.Size = UDim2.new(0.3, 0, 0.1, 0)
+backButton.Position = UDim2.new(0.35, 0, 0.9, 0)
+backButton.Text = "Назад"
+backButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+backButton.BorderSizePixel = 0
+backButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+backButton.Font = Enum.Font.SourceSansBold
+backButton.TextScaled = true
+backButton.Parent = mainFrame
 
-local sliderTitle = Instance.new("TextLabel")
-sliderTitle.Size = UDim2.new(1, 0, 0.3, 0)
-sliderTitle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-sliderTitle.Text = "Расстояние камеры:"
-sliderTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-sliderTitle.Parent = sliderFrame
+backButton.MouseButton1Click:Connect(function()
+    camera.CameraSubject = player.Character and player.Character:FindFirstChild("Humanoid") or nil
+    camera.CameraType = Enum.CameraType.Custom
+end)
 
-local slider = Instance.new("Frame")
-slider.Size = UDim2.new(1, -20, 0.4, 0)
-slider.Position = UDim2.new(0, 10, 0.35, 0)
-slider.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-slider.Parent = sliderFrame
+local function setCameraToFirstPerson(targetPlayer)
+    local humanoid = targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        camera.CameraSubject = humanoid
+        camera.CameraType = Enum.CameraType.Custom
+        camera.CFrame = CFrame.new(humanoid.Head.Position)
+    end
+end
 
-local sliderButton = Instance.new("Frame")
-sliderButton.Size = UDim2.new(0, 10, 1, 0)
-sliderButton.Position = UDim2.new(0, 0, 0, 0)
-sliderButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-sliderButton.Parent = slider
+local function setCameraToThirdPerson(targetPlayer)
+    local humanoid = targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        camera.CameraSubject = humanoid
+        camera.CameraType = Enum.CameraType.Custom
+        camera.CFrame = CFrame.new(humanoid.Head.Position + Vector3.new(0, 5, -10), humanoid.Head.Position)
+    end
+end
 
-local sliderValue = Instance.new("TextLabel")
-sliderValue.Size = UDim2.new(1, 0, 0.3, 0)
-sliderValue.Position = UDim2.new(0, 0, 0.7, 0)
-sliderValue.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-sliderValue.Text = "20"
-sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
-sliderValue.Parent = sliderFrame
+local function setCameraToFreeView(targetPlayer)
+    local humanoid = targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        camera.CameraSubject = nil
+        camera.CameraType = Enum.CameraType.Scriptable
+    end
+end
 
 -- Обновление списка игроков
 local function updatePlayerList()
     -- Очистка предыдущего списка
     for _, child in ipairs(mainFrame:GetChildren()) do
-        if child:IsA("TextButton") and child ~= titleLabel and child ~= closeButton then
+        if child:IsA("TextButton") and child ~= titleLabel and child ~= backButton then
             child:Destroy()
         end
     end
@@ -129,62 +119,67 @@ local function updatePlayerList()
             local playerButton = Instance.new("TextButton")
             playerButton.Size = UDim2.new(1, 0, 0.1, 0)
             playerButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            playerButton.BorderSizePixel = 0
             playerButton.Text = p.Name
             playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            playerButton.Font = Enum.Font.SourceSansBold
+            playerButton.TextScaled = true
             playerButton.Parent = mainFrame
+
+            local viewButton1 = Instance.new("TextButton")
+            viewButton1.Size = UDim2.new(1, 0, 0.1, 0)
+            viewButton1.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+            viewButton1.BorderSizePixel = 0
+            viewButton1.Text = "1 лицо"
+            viewButton1.TextColor3 = Color3.fromRGB(255, 255, 255)
+            viewButton1.Font = Enum.Font.SourceSansBold
+            viewButton1.TextScaled = true
+            viewButton1.Parent = mainFrame
+
+            viewButton1.MouseButton1Click:Connect(function()
+                setCameraToFirstPerson(p)
+            end)
+
+            local viewButton2 = Instance.new("TextButton")
+            viewButton2.Size = UDim2.new(1, 0, 0.1, 0)
+            viewButton2.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+            viewButton2.BorderSizePixel = 0
+            viewButton2.Text = "3 лицо"
+            viewButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
+            viewButton2.Font = Enum.Font.SourceSansBold
+            viewButton2.TextScaled = true
+            viewButton2.Parent = mainFrame
+
+            viewButton2.MouseButton1Click:Connect(function()
+                setCameraToThirdPerson(p)
+            end)
+
+            local freeViewButton = Instance.new("TextButton")
+            freeViewButton.Size = UDim2.new(1, 0, 0.1, 0)
+            freeViewButton.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+            freeViewButton.BorderSizePixel = 0
+            freeViewButton.Text = "Свободный вид"
+            freeViewButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            freeViewButton.Font = Enum.Font.SourceSansBold
+            freeViewButton.TextScaled = true
+            freeViewButton.Parent = mainFrame
+
+            freeViewButton.MouseButton1Click:Connect(function()
+                setCameraToFreeView(p)
+            end)
 
             playerButton.MouseButton1Click:Connect(function()
                 -- Начать слежку за игроком
                 print("Слежу за игроком: " .. p.Name)
-                
-                -- Смена позиции камеры на выбранного игрока
-                camera.CameraSubject = p.Character and p.Character:FindFirstChild("Humanoid") or nil
-                camera.CameraType = Enum.CameraType.Scriptable
-
-                -- Функция для обновления камеры
-                local function updateCamera()
-                    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                        local distance = tonumber(sliderValue.Text) or 20
-                        camera.CFrame = CFrame.new(p.Character.HumanoidRootPart.Position + Vector3.new(0, 5, distance), p.Character.HumanoidRootPart.Position)
-                    end
-                end
-
-                -- Обновление камеры каждый кадр
-                game:GetService("RunService").RenderStepped:Connect(updateCamera)
+                setCameraToThirdPerson(p)
             end)
         end
     end
 end
-
--- Обновление значения ползунка
-local function updateSlider(input)
-    local sliderSize = slider.AbsoluteSize.X
-    local newValue = math.clamp((input.Position.X.Offset - slider.AbsolutePosition.X) / sliderSize * 40 + 10, 10, 50)
-    sliderButton.Position = UDim2.new((newValue - 10) / 40 / sliderSize, 0, 0, 0)
-    sliderValue.Text = tostring(math.round(newValue))
-end
-
-sliderButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        updateSlider(input)
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                local inputConnection = input.InputChanged
-                inputConnection:Disconnect()
-            end
-        end)
-    end
-end)
-
-userInputService.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement and sliderButton.Position.X.Offset then
-        updateSlider(input)
-    end
-end)
 
 -- Обновление списка игроков при запуске
 updatePlayerList()
 
 -- Обновление списка при изменении игроков
 game.Players.PlayerAdded:Connect(updatePlayerList)
-game.Players.PlayerRemoved:Connect(updatePlayerList)
+game.Players.PlayerRemoving:Connect(updatePlayerList)
