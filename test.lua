@@ -21,13 +21,12 @@ local function createDraggableFrame(parent, size, position, backgroundColor)
     return frame
 end
 
--- Создание главного фрейма с возможностью перетаскивания и закрытия
+-- Создание главного фрейма с возможностью перетаскивания
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "PlayerTrackerGui"
 screenGui.Parent = playerGui
 
 local mainFrame = createDraggableFrame(screenGui, UDim2.new(0.4, 0, 0.6, 0), UDim2.new(0.3, 0, 0.2, 0), Color3.fromRGB(50, 50, 50))
-mainFrame.Visible = false
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
@@ -50,30 +49,11 @@ scrollFrame.Parent = mainFrame
 local playerListLayout = Instance.new("UIListLayout")
 playerListLayout.Parent = scrollFrame
 
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-toggleButton.Position = UDim2.new(0, 0, 0, 0)
-toggleButton.Text = ">"
-toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleButton.Font = Enum.Font.SourceSansBold
-toggleButton.TextScaled = true
-toggleButton.Parent = screenGui
-
-toggleButton.MouseButton1Click:Connect(function()
-    mainFrame.Visible = not mainFrame.Visible
-    if mainFrame.Visible then
-        toggleButton.Text = "<"
-    else
-        toggleButton.Text = ">"
-    end
-end)
-
 local backButton = Instance.new("TextButton")
 backButton.Size = UDim2.new(0.3, 0, 0.1, 0)
 backButton.Position = UDim2.new(0.35, 0, 0.9, 0)
 backButton.Text = "Назад"
-backButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+backButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 backButton.BorderSizePixel = 0
 backButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 backButton.Font = Enum.Font.SourceSansBold
@@ -122,7 +102,7 @@ local function updatePlayerList()
     for _, p in ipairs(game.Players:GetPlayers()) do
         if p ~= player then
             local playerButton = Instance.new("TextButton")
-            playerButton.Size = UDim2.new(1, 0, 0.1, 0)
+            playerButton.Size = UDim2.new(1, 0, 0.05, 0)
             playerButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
             playerButton.BorderSizePixel = 0
             playerButton.Text = p.Name
@@ -140,7 +120,7 @@ local function updatePlayerList()
     end
 
     -- Обновление CanvasSize для прокрутки
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0.1 * #game.Players:GetPlayers(), 0)
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0.05 * (#game.Players:GetPlayers() - 1), 0)
 end
 
 -- Обновление списка игроков при запуске
