@@ -38,6 +38,21 @@ titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextScaled = true
 titleLabel.Parent = mainFrame
 
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+closeButton.Position = UDim2.new(0.9, 0, 0, 0)
+closeButton.Text = "X"
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.BorderSizePixel = 0
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextScaled = true
+closeButton.Parent = mainFrame
+
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Size = UDim2.new(1, 0, 0.8, 0)
 scrollFrame.Position = UDim2.new(0, 0, 0.1, 0)
@@ -65,12 +80,12 @@ backButton.MouseButton1Click:Connect(function()
     camera.CameraType = Enum.CameraType.Custom
 end)
 
+local trackedPlayer
+
 local function setCameraToFreeView(targetPlayer)
-    local humanoid = targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid")
-    if humanoid then
-        camera.CameraSubject = humanoid
-        camera.CameraType = Enum.CameraType.Custom
-    end
+    trackedPlayer = targetPlayer
+    camera.CameraSubject = trackedPlayer.Character and trackedPlayer.Character:FindFirstChild("Humanoid") or nil
+    camera.CameraType = Enum.CameraType.Custom
 end
 
 -- Update player list
@@ -113,3 +128,17 @@ updatePlayerList()
 -- Update player list when players are added or removed
 game.Players.PlayerAdded:Connect(updatePlayerList)
 game.Players.PlayerRemoving:Connect(updatePlayerList)
+
+-- Function to update camera position based on tracked player
+local function updateCameraPosition()
+    if trackedPlayer and trackedPlayer.Character and trackedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local rootPart = trackedPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            camera.CameraType = Enum.CameraType.Custom
+            camera.CameraSubject = rootPart
+        end
+    end
+end
+
+-- Update camera position periodically
+game:GetService("RunService").RenderStepped:Connect(updateCameraPosition)
