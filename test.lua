@@ -9,12 +9,12 @@ local g = Instance.new("TextBox")
 local h = Instance.new("TextLabel")
 local i = Instance.new("UICorner")
 local j = Instance.new("UIStroke")
-local k = game:GetService("UserInputService")
 local l = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 
-a.Parent = LocalPlayer:WaitForChild("PlayerGui")
+-- Настройка интерфейса
 a.Name = "MainMenuGui"
+a.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 i.CornerRadius = UDim.new(0, 12)
 j.Color = Color3.new(0, 0, 0)
@@ -71,7 +71,7 @@ h.Parent = b
 h.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 h.Position = UDim2.new(0.5, -100, 1, -40)
 h.Size = UDim2.new(0, 200, 0, 30)
-h.Text = "Version 1.1"
+h.Text = "Version 1.2"
 h.TextColor3 = Color3.fromRGB(200, 200, 200)
 h.Font = Enum.Font.SourceSans
 h.TextSize = 18
@@ -139,7 +139,6 @@ b.InputBegan:Connect(function(input)
         dragging = true
         dragStart = input.Position
         startPos = b.Position
-
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
@@ -149,7 +148,7 @@ b.InputBegan:Connect(function(input)
 end)
 
 b.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch) then
         updateDrag(input)
     end
 end)
