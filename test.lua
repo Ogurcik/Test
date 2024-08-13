@@ -1,339 +1,402 @@
--- Создание GUI
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local Tabs = Instance.new("Frame")
-local AimbotTab = Instance.new("TextButton")
-local ESPTab = Instance.new("TextButton")
-local MiscTab = Instance.new("TextButton")
-local AimbotFrame = Instance.new("Frame")
-local ESPFrame = Instance.new("Frame")
-local MiscFrame = Instance.new("Frame")
-local CloseButton = Instance.new("TextButton")
-local OpenButton = Instance.new("TextButton")
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Key System", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
 
--- Настройки GUI
-ScreenGui.Name = "CheatMenu"
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ResetOnSpawn = false -- меню не исчезает при смерти
 
-Frame.Name = "MainFrame"
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Frame.Position = UDim2.new(0.3, 0, 0.3, 0)
-Frame.Size = UDim2.new(0, 400, 0, 300)
-Frame.Visible = true
-Frame.Active = true
-Frame.Draggable = true -- делаем меню перетаскиваемым
-Frame.BorderSizePixel = 0
-Frame.BackgroundTransparency = 0.2
-Frame.ZIndex = 2
-Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+local KeyTab = Window:MakeTab({
+	Name = "Key",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
 
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 10)
-UICorner.Parent = Frame
 
-Title.Name = "Title"
-Title.Parent = Frame
-Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Title.Size = UDim2.new(0, 400, 0, 50)
-Title.Font = Enum.Font.SourceSansBold
-Title.Text = "Roblox Cheat Menu"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 24
-Title.ZIndex = 2
+function makehub() 
+	local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+	local Window = OrionLib:MakeWindow({Name = "CoronaVirus RP", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+	local PlayerTab = Window:MakeTab({
+		Name = "Player",
+		Icon = "rbxassetid://4483345998",
+		PremiumOnly = false
+	})
 
-Tabs.Name = "Tabs"
-Tabs.Parent = Frame
-Tabs.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Tabs.Position = UDim2.new(0, 0, 0.2, 0)
-Tabs.Size = UDim2.new(0, 400, 0, 50)
-Tabs.ZIndex = 2
+	PlayerTab:AddSlider({
+		Name = "Speed",
+		Min = 0,
+		Max = 500,
+		Default = 5,
+		Color = Color3.fromRGB(255,255,255),
+		Increment = 1,
+		ValueName = "Walk Speed",
+		Callback = function(Value)
+			game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+		end    
+	})
+	 
+	PlayerTab:AddSlider({
+		Name = "Jump Power ",
+		Min = 0,
+		Max = 500,
+		Default = 5,
+		Color = Color3.fromRGB(255,255,255),
+		Increment = 1,
+		ValueName = "JumpPower",
+		Callback = function(Value)
+			game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+		end    
+	})
+	 
+	local MainTab = Window:MakeTab({
+		Name = "Main",
+		Icon = "rbxassetid://4483345998",
+		PremiumOnly = false
+	})
+	
+	
+	MainTab:AddButton({
+		Name = "Spy on chat",
+		Callback = function()
+			enabled = true
+			--if true will xhexk your messages too
+			spyOnMyself = true
+			--if true will xhat the logs publikly (fun, risky)
+			public = false
+			--if true will use /me to stand out
+			publicItalics = false
+			--KUSTOMIZE private logs
+			privateProperties = {
+				Color = Color3.fromRGB(0,255,255); 
+				Font = Enum.Font.SourceSansBold;
+				TextSize = 18;
+			}
+			--////////////////////////////////////////////////////////////////
+			local StarterGui = game:GetService("StarterGui")
+			local Players = game:GetService("Players")
+			local player = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait() or Players.LocalPlayer
+			local saymsg = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest")
+			local getmsg = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("OnMessageDoneFiltering")
+			local instance = (_G.chatSpyInstance or 0) + 1
+			_G.chatSpyInstance = instance
+	 
+			local function onChatted(p,msg)
+				if _G.chatSpyInstance == instance then
+					if p==player and msg:lower():sub(1,6)==".lu" then
+						enabled = not enabled
+						wait(0.3)
+						privateProperties.Text = "{LOLLYPOP SPY "..(enabled and "EN" or "DIS").."ABLED}"
+						StarterGui:SetCore("ChatMakeSystemMessage",privateProperties)
+					elseif enabled and (spyOnMyself==true or p~=player) then
+						msg = msg:gsub("[\n\r]",''):gsub("\t",' '):gsub("[ ]+",' ')
+						local hidden = true
+						local conn = getmsg.OnClientEvent:Connect(function(packet,channel)
+							if packet.SpeakerUserId==p.UserId and packet.Message==msg:sub(#msg-#packet.Message+1) and (channel=="All" or (channel=="Team" and public==false and p.Team==player.Team)) then
+								hidden = false
+							end
+						end)
+						wait(1)
+						conn:Disconnect()
+						if hidden and enabled then
+							if public then
+								saymsg:FireServer((publicItalics and "/me " or '').."{SPY} [".. p.Name .."]: "..msg,"All")
+							else
+								privateProperties.Text = "{SPY} [".. p.Name .."]: "..msg
+								StarterGui:SetCore("ChatMakeSystemMessage",privateProperties)
+							end
+						end
+					end
+				end
+			end
+	 
+			for _,p in ipairs(Players:GetPlayers()) do
+				p.Chatted:Connect(function(msg) onChatted(p,msg) end)
+			end
+			Players.PlayerAdded:Connect(function(p)
+				p.Chatted:Connect(function(msg) onChatted(p,msg) end)
+			end)
+			privateProperties.Text = "{LOLLYPOP SPY "..(enabled and "EN" or "DIS").."ABLED}"
+			player:WaitForChild("PlayerGui"):WaitForChild("Chat")
+			StarterGui:SetCore("ChatMakeSystemMessage",privateProperties)
+			wait(3)
+			local chatFrame = player.PlayerGui.Chat.Frame
+			chatFrame.ChatChannelParentFrame.Visible = true
+			chatFrame.ChatBarParentFrame.Position = chatFrame.ChatChannelParentFrame.Position+UDim2.new(UDim.new(),chatFrame.ChatChannelParentFrame.Size.Y)
+		  end    
+	})
+	 
+	MainTab:AddButton({
+		Name = "View Dropped Tools!",
+		Callback = function()
+			local Workspace1 = game:GetService("Workspace")
+			Workspace1.ChildAdded:Connect(function(e)
+				if e:IsA("Tool") and e.Parent == workspace then
+					wait(0.5)
+					local Highlight = Instance.new("Highlight")
+					Highlight.FillColor = Color3.fromRGB(21,0,255)
+					Highlight.FillTransparency = 0.25
+					Highlight.OutlineColor = Color3.fromRGB(255,0,0)
+					Highlight.OutlineTransparency = 0
+					Highlight.Parent = e.Handle
+				end
+			end)
+	 
+			Workspace1.ChildRemoved:Connect(function(e)
+				if e:IsA("Tool") then
+	 
+					local Highlight = Instance.new("Highlight")
+					Highlight.FillColor = Color3.fromRGB(21,0,255)
+					Highlight.FillTransparency = 0.25
+					Highlight.OutlineColor = Color3.fromRGB(255,0,0)
+					Highlight.OutlineTransparency = 0
+					e.Handle.Highlight:Destroy()
+				end
+		  end)
+	end    
+	})
+	 
+	MainTab:AddButton({
+		Name = "Remove Doors",
+		Callback = function()
+		game.workspace.Doors:Destroy()
+	end    
+	})
+	
+	MainTab:AddButton({
+		Name = "Infinity Yield",
+		Callback = function()
+			loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+	end    
+	})
+	
+	local IYMouse = game.Players.LocalPlayer:GetMouse()
+	
+	MainTab:AddButton({
+		Name = "Tp tool",
+		Callback = function()
+			local TpTool = Instance.new("Tool")
+		
+		 TpTool.Name = "Teleport Tool"
+		 TpTool.RequiresHandle = false
+		 TpTool.Parent =  game.Players.LocalPlayer.Backpack
+		 TpTool.Activated:Connect(function()
+			local Char =  game.Players.LocalPlayer.Character
+			local HRP = Char and Char:FindFirstChild("HumanoidRootPart")
+			if not Char or not HRP then
+				return warn("Failed to find HumanoidRootPart")
+			end
+			HRP.CFrame = CFrame.new(IYMouse.Hit.X, IYMouse.Hit.Y + 3, IYMouse.Hit.Z, select(4, HRP.CFrame:components()))
+		end)
+	end    
+	})
+	 
+	
+	
+	local HitBoxTab = Window:MakeTab({
+		Name = "HitBox Tab",
+		Icon = "rbxassetid://4483345998",
+		PremiumOnly = false
+	})
+	 
+	local HitboxSize = 0 
+	 
+	 
+	HitBoxTab:AddSlider({
+		Name = "HitBox Size",
+		Min = 0,
+		Max = 500,
+		Default = 0,
+		Color = Color3.fromRGB(255,255,255),
+		Increment = 1,
+		ValueName = "",
+		Callback = function(Value)
+			HitboxSize = Value
+		end    
+	})
+	 
+	function Antilag()
+		local Terrain = workspace:FindFirstChildOfClass('Terrain')
+		local Lighting = game:GetService("Lighting")
+		Terrain.WaterWaveSize = 0
+		Terrain.WaterWaveSpeed = 0
+		Terrain.WaterReflectance = 0
+		Terrain.WaterTransparency = 0
+		Lighting.GlobalShadows = false
+		Lighting.FogEnd = 9e9
+		settings().Rendering.QualityLevel = 1
+		for i,v in pairs(game:GetDescendants()) do
+			if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+				v.Material = "Plastic"
+				v.Reflectance = 0
+			elseif v:IsA("Decal") then
+				v.Transparency = 1
+			elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+				v.Lifetime = NumberRange.new(0)
+			elseif v:IsA("Explosion") then
+				v.BlastPressure = 1
+				v.BlastRadius = 1
+			end
+		end
+		for i,v in pairs(Lighting:GetDescendants()) do
+			if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
+				v.Enabled = false
+			end
+		end
+		workspace.DescendantAdded:Connect(function(child)
+			task.spawn(function()
+				if child:IsA('ForceField') then
+					RunService.Heartbeat:Wait()
+					child:Destroy()
+				elseif child:IsA('Sparkles') then
+					RunService.Heartbeat:Wait()
+					child:Destroy()
+				elseif child:IsA('Smoke') or child:IsA('Fire') then
+					RunService.Heartbeat:Wait()
+					child:Destroy()
+				end
+			end)
+		end)
+	 end   
+	
+	
+	HitBoxTab:AddButton({
+		Name = "Hitbox expander(click again if its not works)",
+		Callback = function()
+		_G.HeadSize = HitboxSize
+		_G.Disabled = true
+	   
+	   game:GetService('RunService').RenderStepped:connect(function()
+	 if _G.Disabled then
+	 for i,v in next, game:GetService('Players'):GetPlayers() do
+	 if v.Name ~= game:GetService('Players').LocalPlayer.Name then
+	 pcall(function()
+	 v.Character.HumanoidRootPart.Size = Vector3.new(_G.HeadSize,_G.HeadSize,_G.HeadSize)
+	 v.Character.HumanoidRootPart.CanCollide = false
+	 v.Character.HumanoidRootPart.CanTouch = true
+	 v.Character.HumanoidRootPart.Transparency = 0.7
+	 v.Character.HumanoidRootPart.CashShadow = false
+	 v.Character.HumanoidRootPart.BrickColor = BrickColor.new("Mid gray")
+	 
+	 
+	end)
+	end
+	end
+	end
+	end)
+	end    
+	})
+	 
+	
+	
+	local ShteinWhereOptimizachia = Window:MakeTab({
+		Name = "optimization",
+		Icon = "rbxassetid://4483345998",
+		PremiumOnly = false
+	})
+	 
+	ShteinWhereOptimizachia:AddButton({
+		Name = "Remove terrain",
+		Callback = function(Value)
+			workspace:FindFirstChildOfClass('Terrain'):Clear()
+			
+		end  
+	 
+	})
+	
+	ShteinWhereOptimizachia:AddButton({
+		Name = "Anti Lag",
+		Callback = function(Value)
+			Antilag()
+			
+		end  
+	 
+	})
+	
+	
+	
+	local TeleportTab = Window:MakeTab({
+		Name = "Teleport Tab",
+		Icon = "rbxassetid://4483345998",
+		PremiumOnly = false
+	})
+	 
+	 
+	TeleportTab:AddButton({
+		Name = "Teleport To Kitchen",
+		Callback = function(Value)
+	 
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1275.59,-21.53,633.01)
+		end  
+	 
+	})
+	 
+	TeleportTab:AddButton({
+		Name = "Teleport To Exit",
+		Callback = function(Value)
+	 
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-100.67,-20.5,752.7)
+		end  
+	 
+	})
+	 
+	
+	 
+	 
+	TeleportTab:AddButton({
+		Name = "Teleport To TFB Base",
+		Callback = function(Value)
+	 
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1033.42,-27.93,709.90)
+		end  
+	 
+	})
+	 
+	TeleportTab:AddButton({
+		Name = "Teleport To Secret room",
+		Callback = function(Value)
+	 
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-751.84,-10.95, 843.03)
+	 
+		end  
+	 
+	})
+ end
 
-AimbotTab.Name = "AimbotTab"
-AimbotTab.Parent = Tabs
-AimbotTab.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-AimbotTab.Position = UDim2.new(0, 0, 0, 0)
-AimbotTab.Size = UDim2.new(0, 133, 0, 50)
-AimbotTab.Font = Enum.Font.SourceSansBold
-AimbotTab.Text = "Aimbot"
-AimbotTab.TextColor3 = Color3.fromRGB(255, 255, 255)
-AimbotTab.TextSize = 24
-AimbotTab.ZIndex = 2
 
-ESPTab.Name = "ESPTab"
-ESPTab.Parent = Tabs
-ESPTab.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-ESPTab.Position = UDim2.new(0.33, 0, 0, 0)
-ESPTab.Size = UDim2.new(0, 133, 0, 50)
-ESPTab.Font = Enum.Font.SourceSansBold
-ESPTab.Text = "ESP"
-ESPTab.TextColor3 = Color3.fromRGB(255, 255, 255)
-ESPTab.TextSize = 24
-ESPTab.ZIndex = 2
 
-MiscTab.Name = "MiscTab"
-MiscTab.Parent = Tabs
-MiscTab.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-MiscTab.Position = UDim2.new(0.66, 0, 0, 0)
-MiscTab.Size = UDim2.new(0, 133, 0, 50)
-MiscTab.Font = Enum.Font.SourceSansBold
-MiscTab.Text = "Misc"
-MiscTab.TextColor3 = Color3.fromRGB(255, 255, 255)
-MiscTab.TextSize = 24
-MiscTab.ZIndex = 2
+function notify()
+	OrionLib:MakeNotification({
+		Name = "Key System",
+		Content = "Key is correct. Loading hub.",
+		Image = "rbxassetid://4483345998",
+		Time = 5
+	})
+ end	
 
-CloseButton.Name = "CloseButton"
-CloseButton.Parent = Frame
-CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-CloseButton.Position = UDim2.new(0.9, 0, 0, 0)
-CloseButton.Size = UDim2.new(0, 40, 0, 40)
-CloseButton.Font = Enum.Font.SourceSansBold
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextSize = 24
-CloseButton.ZIndex = 2
-CloseButton.MouseButton1Click:Connect(function()
-    Frame.Visible = false
-    OpenButton.Visible = true
-end)
+_G.Key = "RDC23"
+_G.KeyInput = "string"
 
-OpenButton.Name = "OpenButton"
-OpenButton.Parent = ScreenGui
-OpenButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-OpenButton.Position = UDim2.new(0.01, 0, 0.01, 0)
-OpenButton.Size = UDim2.new(0, 100, 0, 50)
-OpenButton.Font = Enum.Font.SourceSansBold
-OpenButton.Text = "Open Menu"
-OpenButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-OpenButton.TextSize = 24
-OpenButton.Visible = false
-OpenButton.MouseButton1Click:Connect(function()
-    Frame.Visible = true
-    OpenButton.Visible = false
-end)
+KeyTab:AddTextbox({
+	Name = "Key",
+	Default = "Key Here",
+	TextDisappear = true,
+	Callback = function(Value)
+		_G.KeyInput = Value
+	end	  
+})
 
--- Создание рамок для вкладок
-AimbotFrame.Name = "AimbotFrame"
-AimbotFrame.Parent = Frame
-AimbotFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-AimbotFrame.Position = UDim2.new(0, 0, 0.4, 0)
-AimbotFrame.Size = UDim2.new(0, 400, 0, 150)
-AimbotFrame.Visible = false
-AimbotFrame.ZIndex = 2
 
-ESPFrame.Name = "ESPFrame"
-ESPFrame.Parent = Frame
-ESPFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-ESPFrame.Position = UDim2.new(0, 0, 0.4, 0)
-ESPFrame.Size = UDim2.new(0, 400, 0, 150)
-ESPFrame.Visible = false
-ESPFrame.ZIndex = 2
 
-MiscFrame.Name = "MiscFrame"
-MiscFrame.Parent = Frame
-MiscFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-MiscFrame.Position = UDim2.new(0, 0, 0.4, 0)
-MiscFrame.Size = UDim2.new(0, 400, 0, 150)
-MiscFrame.Visible = false
-MiscFrame.ZIndex = 2
+KeyTab:AddButton({
+	Name = "Button!",
+	Callback = function()
+      	if _G.KeyInput == _G.Key then
+			
+			notify()
+		    makehub()
+			
 
--- Функции переключения вкладок
-AimbotTab.MouseButton1Click:Connect(function()
-    AimbotFrame.Visible = true
-    ESPFrame.Visible = false
-    MiscFrame.Visible = false
-end)
+            else
+            game.Players.LocalPlayer:Kick("Ð°Ñ…Ð°Ñ…Ð° Ð±ÐµÐ·Ð´Ð°Ñ€ÑŒ Ð¸Ð´Ð¸ Ð¸Ñ‰Ð¸ Ð½Ð¾Ð²Ñ‹Ð¹ ÐºÐ»ÑŽÑ‡Ð¸Ðº")
 
-ESPTab.MouseButton1Click:Connect(function()
-    AimbotFrame.Visible = false
-    ESPFrame.Visible = true
-    MiscFrame.Visible = false
-end)
+		 end	
+  	end    
+})
 
-MiscTab.MouseButton1Click:Connect(function()
-    AimbotFrame.Visible = false
-    ESPFrame.Visible = false
-    MiscFrame.Visible = true
-end)
--- Aimbot функции
-local AimbotToggle = Instance.new("TextButton")
-AimbotToggle.Parent = AimbotFrame
-AimbotToggle.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-AimbotToggle.Position = UDim2.new(0.1, 0, 0.1, 0)
-AimbotToggle.Size = UDim2.new(0, 100, 0, 50)
-AimbotToggle.Font = Enum.Font.SourceSansBold
-AimbotToggle.Text = "Enable Aimbot"
-AimbotToggle.TextColor3 = Color3.fromRGB(0, 0, 0)
-AimbotToggle.TextSize = 24
-AimbotToggle.ZIndex = 2
-
-local AimbotSettings = {
-    Enabled = false,
-    Smoothness = 0.2,
-    FOV = 100
-}
-
-AimbotToggle.MouseButton1Click:Connect(function()
-    AimbotSettings.Enabled = not AimbotSettings.Enabled
-    if AimbotSettings.Enabled then
-        AimbotToggle.Text = "Disable Aimbot"
-    else
-        AimbotToggle.Text = "Enable Aimbot"
-    end
-end)
-
--- Функция для aimbot
-local function AimAt(target)
-    local player = game.Players.LocalPlayer
-    local mouse = player:GetMouse()
-    
-    local function getClosestPlayer()
-        local closestPlayer = nil
-        local shortestDistance = AimbotSettings.FOV
-        
-        for i, v in pairs(game.Players:GetPlayers()) do
-if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                local characterPos = v.Character.HumanoidRootPart.Position
-                local screenPos, onScreen = workspace.CurrentCamera:WorldToScreenPoint(characterPos)
-                local distance = (Vector2.new(screenPos.X, screenPos.Y) - mouse.ViewSize / 2).magnitude
-                
-                if distance < shortestDistance then
-                    shortestDistance = distance
-                    closestPlayer = v
-                end
-            end
-        end
-        
-        return closestPlayer
-    end
-    
-    local function aim()
-        while AimbotSettings.Enabled do
-            local closestPlayer = getClosestPlayer()
-            if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                local targetPosition = closestPlayer.Character.HumanoidRootPart.Position
-                local camera = workspace.CurrentCamera
-                camera.CFrame = CFrame.new(camera.CFrame.Position, targetPosition)
-            end
-            wait(AimbotSettings.Smoothness)
-        end
-    end
-    
-    aim()
-end
-
--- Запуск функции aimbot
-AimbotToggle.MouseButton1Click:Connect(function()
-    if AimbotSettings.Enabled then
-        AimAt()
-    end
-end)
--- ESP функции
-local function createESP(object)
-    local esp = Instance.new("BillboardGui")
-    esp.Name = "ESP"
-    esp.Adornee = object
-    esp.Size = UDim2.new(0, 200, 0, 50)
-    esp.AlwaysOnTop = true
-    esp.Parent = object:FindFirstChild("Head") or object:FindFirstChild("HumanoidRootPart")
-    
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Parent = esp
-    textLabel.BackgroundTransparency = 1
-    textLabel.Text = object.Name
-    textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-    textLabel.TextStrokeTransparency = 0.5
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.TextSize = 24
-end
-
-local ESPToggle = Instance.new("TextButton")
-ESPToggle.Parent = ESPFrame
-ESPToggle.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-ESPToggle.Position = UDim2.new(0.1, 0, 0.1, 0)
-ESPToggle.Size = UDim2.new(0, 100, 0, 50)
-ESPToggle.Font = Enum.Font.SourceSansBold
-ESPToggle.Text = "Enable ESP"
-ESPToggle.TextColor3 = Color3.fromRGB(0, 0, 0)
-ESPToggle.TextSize = 24
-ESPToggle.ZIndex = 2
-
-local function toggleESP()
-    local espEnabled = false
-    
-    ESPToggle.MouseButton1Click:Connect(function()
-        espEnabled = not espEnabled
-        ESPToggle.Text = espEnabled and "Disable ESP" or "Enable ESP"
-        
-        if espEnabled then
-            for _, player in pairs(game.Players:GetPlayers()) do
-                if player.Character then
-                    createESP(player.Character)
-                end
-            end
-        else
-            for _, esp in pairs(workspace:FindFirstChildOfClass("BillboardGui")) do
-                if esp.Name == "ESP" then
-                    esp:Destroy()
-                end
-            end
-        end
-    end)
-end
-
-toggleESP()
--- Функция для стрельбы через стены
-local function shootThroughWalls()
-    local player = game.Players.LocalPlayer
-    local mouse = player:GetMouse()
-
-    mouse.Button1Down:Connect(function()
-        if not AimbotSettings.Enabled then return end
-        
-        local target = getClosestPlayer()
-        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-            -- Пример стрельбы через стены
-            local ray = Ray.new(mouse.UnitRay.Origin, mouse.UnitRay.Direction * 500)
-            local hitPart, hitPosition = workspace:FindPartOnRay(ray, player.Character)
-            
-            if hitPart and hitPart.Parent:FindFirstChild("Humanoid") then
-                -- Логика стрельбы
-                print("Shooting through walls!")
-                -- Можете добавить здесь код для стрельбы
-            end
-        end
-    end)
-end
-
--- Запуск функции стрельбы через стены
-shootThroughWalls()
--- Функция изменения скорости
-local SpeedHackToggle = Instance.new("TextButton")
-SpeedHackToggle.Parent = MiscFrame
-SpeedHackToggle.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-SpeedHackToggle.Position = UDim2.new(0.1, 0, 0.1, 0)
-SpeedHackToggle.Size = UDim2.new(0, 100, 0, 50)
-SpeedHackToggle.Font = Enum.Font.SourceSansBold
-SpeedHackToggle.Text = "Enable Speed Hack"
-SpeedHackToggle.TextColor3 = Color3.fromRGB(0, 0, 0)
-SpeedHackToggle.TextSize = 24
-SpeedHackToggle.ZIndex = 2
-
-local SpeedHackSettings = {
-    Enabled = false,
-    Speed = 50
-}
-
-SpeedHackToggle.MouseButton1Click:Connect(function()
-    SpeedHackSettings.Enabled = not SpeedHackSettings.Enabled
-    if SpeedHackSettings.Enabled then
-        SpeedHackToggle.Text = "Disable Speed Hack"
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = SpeedHackSettings.Speed
-    else
-        SpeedHackToggle.Text = "Enable Speed Hack"
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
-    end
-end)
+OrionLib:Init()
