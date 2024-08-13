@@ -1,5 +1,6 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 local Window = OrionLib:MakeWindow({Name = "Key System", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+loadstring(game:HttpGet(('https://raw.githubusercontent.com/GDiasdf/oaooafdfg/main/xd?token=GHSAT0AAAAAACHOD43V7327S637JYV2L4ZIZIEJYWA')))()
 
 
 local KeyTab = Window:MakeTab({
