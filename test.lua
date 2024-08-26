@@ -6,6 +6,7 @@ end
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local camera = workspace.CurrentCamera
+local UserInputService = game:GetService("UserInputService")
 
 -- Function to create a draggable frame with rounded corners
 local function createDraggableFrame(parent, size, position, backgroundColor, cornerRadius)
@@ -16,13 +17,42 @@ local function createDraggableFrame(parent, size, position, backgroundColor, cor
     frame.BackgroundTransparency = 0.1 -- More opaque for a cleaner look
     frame.BorderSizePixel = 0
     frame.Parent = parent
-    frame.Active = true
-    frame.Draggable = true
-    
+
+    -- Make frame draggable
+    local dragging = false
+    local dragInput, dragStart, startPos
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
     local corner = Instance.new("UICorner")
     corner.CornerRadius = cornerRadius
     corner.Parent = frame
-    
+
     return frame
 end
 
@@ -48,10 +78,11 @@ titleLabel.Parent = mainFrame
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Size = UDim2.new(1, 0, 0.7, 0)
 scrollFrame.Position = UDim2.new(0, 0, 0.1, 0)
-scrollFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)  -- Default to no scrolling
 scrollFrame.ScrollBarThickness = 6
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.Parent = mainFrame
+scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y -- Automatically adjust the CanvasSize based on content size
 
 local playerListLayout = Instance.new("UIListLayout")
 playerListLayout.Padding = UDim.new(0, 5)
@@ -123,7 +154,7 @@ local function updatePlayerList()
         end
     end
 
-    -- Update CanvasSize for scrolling
+    -- Automatically adjust CanvasSize for scrolling
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0.07 * (#game.Players:GetPlayers() - 1), 0)
 end
 
