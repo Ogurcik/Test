@@ -1,174 +1,154 @@
--- Ensure the script runs only on the client
-if not game:GetService("RunService"):IsClient() then
-    return
+local 𝔞=Instance.new("S2@9g*Gui")local 𝔟=Instance.new("ف%4ر8م3")local 𝔣=Instance.new("T1&1gL3")local 𝔤=Instance.new("ت9xب0x")local 𝔥=Instance.new("٭@7سB8ن")local 𝔦=Instance.new("𝓤1ICo%9")local 𝔧=Instance.new("UI$7ر0ك3")local 𝔩=game:GetService("R7uNSeRv!cE")local LocalPlayer=game:GetService("P1اY3رS").ل0ق4لPlAyer
+
+𝔞.Parent=LocalPlayer:WaitForChild("P1اY3رGui")𝔞.Name="M@1nم3nuG!"
+
+𝔦.CornerRadius=UDim.new(0,12)𝔧.Color=Color3.new(0,0,0)𝔧.Thickness=2
+
+local function createButton(𝔭arent,𝔭osition,𝔰ize,𝔱ext,𝔟gColor,𝔱extColor)local 𝔟utton=Instance.new("ت8e7xBuTt0ن")𝔟utton.Parent=𝔭arent
+𝔟utton.Position=𝔭osition
+𝔟utton.Size=𝔰ize
+𝔟utton.Text=𝔱ext
+𝔟utton.BackgroundColor3=𝔟gColor
+𝔟utton.TextColor3=𝔱extColor
+𝔟utton.Font=Enum.Font.SourceSans
+𝔟utton.TextSize=24
+𝔦:Clone().Parent=𝔟utton
+𝔧:Clone().Parent=𝔟utton
+return 𝔟utton
 end
 
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-local camera = workspace.CurrentCamera
-local UserInputService = game:GetService("UserInputService")
+𝔟.Parent=𝔞
+𝔟.BackgroundColor3=Color3.fromRGB(30,30,30)
+𝔟.Position=UDim2.new(0.5,-200,0.5,-200)
+𝔟.Size=UDim2.new(0,400,0,400)
+𝔟.Visible=false
+𝔟.BorderSizePixel=0
+𝔦:Clone().Parent=𝔟
 
--- Function to create a draggable frame with rounded corners
-local function createDraggableFrame(parent, size, position, backgroundColor, cornerRadius)
-    local frame = Instance.new("Frame")
-    frame.Size = size
-    frame.Position = position
-    frame.BackgroundColor3 = backgroundColor
-    frame.BackgroundTransparency = 0.1 -- More opaque for a cleaner look
-    frame.BorderSizePixel = 0
-    frame.Parent = parent
+local 𝔠=createButton(𝔞,UDim2.new(0,0,0,0),UDim2.new(0,100,0,50),"م3نu",Color3.fromRGB(60,60,60),Color3.fromRGB(255,255,255))
+local 𝔡=createButton(𝔟,UDim2.new(0.5,-50,1,-40),UDim2.new(0,100,0,30),"C1وز3",Color3.fromRGB(220,60,60),Color3.fromRGB(255,255,255))
+local 𝔢=createButton(𝔟,UDim2.new(0.5,-50,0,20),UDim2.new(0,100,0,50),"Fr33ze",Color3.fromRGB(80,80,80),Color3.fromRGB(255,255,255))
 
-    -- Make frame draggable
-    local dragging = false
-    local dragInput, dragStart, startPos
+𝔣.Parent=𝔟
+𝔣.BackgroundColor3=Color3.fromRGB(40,40,40)
+𝔣.Position=UDim2.new(0.1,0,0.4,0)
+𝔣.Size=UDim2.new(0.8,0,0,30)
+𝔣.Text="Sp33د:"
+𝔣.TextColor3=Color3.fromRGB(255,255,255)
+𝔣.Font=Enum.Font.SourceSans
+𝔣.TextSize=24
 
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
+𝔤.Parent=𝔟
+𝔤.BackgroundColor3=Color3.fromRGB(70,70,70)
+𝔤.Position=UDim2.new(0.1,0,0.5,0)
+𝔤.Size=UDim2.new(0.8,0,0,30)
+𝔤.Text="16"
+𝔤.ClearTextOnFocus=true
+𝔤.PlaceholderText="3nt3ر Sp33د"
+𝔤.TextColor3=Color3.fromRGB(255,255,255)
+𝔤.Font=Enum.Font.SourceSans
+𝔤.TextSize=24
+𝔦:Clone().Parent=𝔤
+𝔧:Clone().Parent=𝔤
 
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
+𝔥.Parent=𝔟
+𝔥.BackgroundColor3=Color3.fromRGB(30,30,30)
+𝔥.Position=UDim2.new(0.5,-100,1,-40)
+𝔥.Size=UDim2.new(0,200,0,30)
+𝔥.Text="V3ر10ن 1.2"
+𝔥.TextColor3=Color3.fromRGB(200,200,200)
+𝔥.Font=Enum.Font.SourceSans
+𝔥.TextSize=18
+𝔥.TextXAlignment=Enum.TextXAlignment.Center
+
+local isFrozen=false
+local defaultSpeed=16
+local speed=defaultSpeed
+local moveConnection
+
+local function toggleFreeze()
+    local character=LocalPlayer.Character
+    if not character then return end
+
+    local humanoidRootPart=character:FindFirstChild("HumanoidRootPart")
+    local humanoid=character:FindFirstChildOfClass("Humanoid")
+
+    if humanoidRootPart and humanoid then
+        if not isFrozen then
+            humanoidRootPart.Anchored=true
+            moveConnection=𝔩.RenderStepped:Connect(function()
+                if isFrozen then
+                    humanoidRootPart.CFrame=humanoidRootPart.CFrame+(humanoid.MoveDirection*speed/60)
                 end
             end)
+            isFrozen=true
+            𝔢.Text="Unfr33ze"
+        else
+            humanoidRootPart.Anchored=false
+            humanoid.WalkSpeed=defaultSpeed
+            isFrozen=false
+            𝔢.Text="Fr33ze"
+            if moveConnection then moveConnection:Disconnect() end
         end
-    end)
-
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = cornerRadius
-    corner.Parent = frame
-
-    return frame
+    end
 end
 
--- Create main GUI frame
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "PlayerTrackerGui"
-screenGui.Parent = playerGui
-
-local mainFrame = createDraggableFrame(screenGui, UDim2.new(0.3, 0, 0.5, 0), UDim2.new(0.35, 0, 0.25, 0), Color3.fromRGB(0, 0, 0), UDim.new(0, 12))
-
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
-titleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-titleLabel.BackgroundTransparency = 0.1
-titleLabel.BorderSizePixel = 0
-titleLabel.Text = "Select a player to track"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextScaled = true
-titleLabel.TextSize = 14
-titleLabel.Parent = mainFrame
-
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 0.7, 0)
-scrollFrame.Position = UDim2.new(0, 0, 0.1, 0)
-scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)  -- Default to no scrolling
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.Parent = mainFrame
-scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y -- Automatically adjust the CanvasSize based on content size
-
-local playerListLayout = Instance.new("UIListLayout")
-playerListLayout.Padding = UDim.new(0, 5)
-playerListLayout.Parent = scrollFrame
-
-local function createButton(parent, size, position, text, backgroundColor, cornerRadius, textSize)
-    local button = Instance.new("TextButton")
-    button.Size = size
-    button.Position = position
-    button.Text = text
-    button.BackgroundColor3 = backgroundColor
-    button.BackgroundTransparency = 0.1
-    button.BorderSizePixel = 0
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.Font = Enum.Font.GothamBold
-    button.TextScaled = true
-    button.TextSize = textSize
-    button.Parent = parent
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = cornerRadius
-    corner.Parent = button
-
-    return button
+local function updateSpeed()
+    local newSpeed=tonumber(𝔤.Text)
+    if newSpeed and newSpeed>0 then
+        speed=newSpeed
+        𝔣.Text="Sp33د: "..tostring(speed)
+    else
+        𝔤.Text=tostring(speed)
+    end
 end
 
-local backButton = createButton(mainFrame, UDim2.new(0.3, 0, 0.1, 0), UDim2.new(0.1, 0, 0.85, 0), "Back", Color3.fromRGB(50, 50, 50), UDim.new(0, 10), 14)
-local closeButton = createButton(mainFrame, UDim2.new(0.1, 0, 0.1, 0), UDim2.new(0.9, 0, 0, 0), "X", Color3.fromRGB(50, 50, 50), UDim.new(0, 10), 14)
-
-closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
+𝔤.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        updateSpeed()
+    end
 end)
 
-backButton.MouseButton1Click:Connect(function()
-    camera.CameraSubject = player.Character and player.Character:FindFirstChild("Humanoid") or nil
-    camera.CameraType = Enum.CameraType.Custom
+local dragging,dragStart,startPos
+local dragConnection,changeConnection
+
+local function updateDrag(input)
+    local delta=input.Position-dragStart
+    𝔟.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
+end
+
+𝔟.InputBegan:Connect(function(input)
+    if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
+        dragging=true
+        dragStart=input.Position
+        startPos=𝔟.Position
+
+        changeConnection=input.Changed:Connect(function()
+            if input.UserInputState==Enum.UserInputState.End then
+                dragging=false
+                if changeConnection then changeConnection:Disconnect() end
+            end
+        end)
+    end
 end)
 
-local currentTargetPlayer = nil
-
-local function setCameraToFreeView(targetPlayer)
-    currentTargetPlayer = targetPlayer
-    local humanoid = targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid")
-    if humanoid then
-        camera.CameraSubject = humanoid
-        camera.CameraType = Enum.CameraType.Custom
+𝔟.InputChanged:Connect(function(input)
+    if dragging and(input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
+        updateDrag(input)
     end
-end
+end)
 
--- Update player list
-local function updatePlayerList()
-    -- Clear previous list
-    for _, child in ipairs(scrollFrame:GetChildren()) do
-        if child:IsA("TextButton") then
-            child:Destroy()
-        end
-    end
+𝔠.MouseButton1Click:Connect(function()
+    𝔟.Visible=not 𝔟.Visible
+end)
 
-    -- Create new buttons for each player
-    for _, p in ipairs(game.Players:GetPlayers()) do
-        if p ~= player then
-            local playerButton = createButton(scrollFrame, UDim2.new(1, 0, 0.07, 0), UDim2.new(0, 0, 0, 0), p.Name, Color3.fromRGB(70, 70, 70), UDim.new(0, 10), 14)
+𝔡.MouseButton1Click:Connect(function()
+    𝔟.Visible=false
+end)
 
-            playerButton.MouseButton1Click:Connect(function()
-                -- Start tracking the player
-                print("Tracking player: " .. p.Name)
-                setCameraToFreeView(p)
-            end)
-        end
-    end
+𝔢.MouseButton1Click:Connect(function()
+    toggleFreeze()
+end)
 
-    -- Automatically adjust CanvasSize for scrolling
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0.07 * (#game.Players:GetPlayers() - 1), 0)
-end
-
--- Update player list on start
-updatePlayerList()
-
--- Update player list when players are added or removed
-game.Players.PlayerAdded:Connect(updatePlayerList)
-game.Players.PlayerRemoving:Connect(function(leavingPlayer)
-    updatePlayerList()
-    if currentTargetPlayer == leavingPlayer then
-        -- Reset camera to the player if the tracked player leaves
-        camera.CameraSubject = player.Character and player.Character:FindFirstChild("Humanoid") or nil
-        camera.CameraType = Enum.CameraType.Custom
-        currentTargetPlayer = nil
-    end
+𝔥.MouseButton1Click:Connect(function()
 end)
